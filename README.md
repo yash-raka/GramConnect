@@ -3,10 +3,6 @@
 > A warm, village-first digital civic complaint portal ("Seva Desk") for rural India — helping villagers report Panchayat issues and track resolutions.
 
 <p align="center">
-  <img src="./assets/banner.png" alt="GramConnect banner" width="100%" />
-</p>
-
-<p align="center">
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-18.3.1-61DAFB?logo=react&logoColor=white" alt="React" /></a>
   <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/TailwindCSS-4.1.12-06B6D4?logo=tailwindcss&logoColor=white" alt="TailwindCSS" /></a>
   <a href="https://aws.amazon.com/"><img src="https://img.shields.io/badge/AWS-Deployed-232F3E?logo=amazon-aws&logoColor=white" alt="AWS" /></a>
@@ -15,6 +11,7 @@
 
 <p align="center">
   <a href="#-what-is-gramconnect">About</a> •
+  <a href="#-screenshots">Screenshots</a> •
   <a href="#-quick-start">Quick Start</a> •
   <a href="#-using-the-app">Usage</a> •
   <a href="#-project-structure">Structure</a> •
@@ -36,6 +33,21 @@ Panchayat admins can:
 - 📊 **View all submitted tickets** with filtering by status.
 - 🔄 **Update ticket status** (Pending → In Progress → Resolved / Rejected).
 - 🗒️ **Add admin notes** on each ticket.
+
+---
+
+## 🖼️ Screenshots
+
+<table>
+  <tr>
+    <td align="center"><b>User Portal</b></td>
+    <td align="center"><b>Admin Portal</b></td>
+  </tr>
+  <tr>
+    <td><img src="./screenshot-user.png" alt="User portal screenshot" width="100%" /></td>
+    <td><img src="./screenshot-admin.png" alt="Admin portal screenshot" width="100%" /></td>
+  </tr>
+</table>
 
 ---
 
