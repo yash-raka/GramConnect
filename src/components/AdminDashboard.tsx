@@ -1,8 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Ticket, TicketStatus } from '../types/ticket';
 import { AdminTicketCard } from './AdminTicketCard';
-import { CreateUser } from './CreateUser';
-import { debugAdminAuth } from '../utils/api';
 import { 
   BarChart3, 
   Clock, 
@@ -10,9 +8,7 @@ import {
   XCircle, 
   RefreshCw,
   Filter,
-  AlertCircle,
-  UserPlus,
-  Shield
+  AlertCircle
 } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -27,8 +23,6 @@ type FilterStatus = 'all' | TicketStatus;
 
 export function AdminDashboard({ tickets, accessToken, onTicketUpdate, onTicketDelete, isLocalMode = false }: AdminDashboardProps) {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
-  const [showCreateUser, setShowCreateUser] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
 
   const stats = useMemo(() => {
     return {
@@ -44,29 +38,6 @@ export function AdminDashboard({ tickets, accessToken, onTicketUpdate, onTicketD
     if (filterStatus === 'all') return tickets;
     return tickets.filter(t => t.status === filterStatus);
   }, [tickets, filterStatus]);
-
-  async function handleCheckAuth() {
-    if (accessToken === 'local-mode') {
-      alert('Local mode is active. No cloud admin token is being used.');
-      return;
-    }
-
-    setIsCheckingAuth(true);
-
-    try {
-      const result = await debugAdminAuth(accessToken);
-      alert(
-        `Debug Auth Result\n\n` +
-        `HTTP Status: ${result.status}\n` +
-        `Success: ${result.ok ? 'Yes' : 'No'}\n\n` +
-        `${JSON.stringify(result.data, null, 2)}`
-      );
-    } catch (error: any) {
-      alert(`Debug Auth Failed\n\n${error?.message || 'Unknown error'}`);
-    } finally {
-      setIsCheckingAuth(false);
-    }
-  }
 
   return (
     <div className="space-y-6">
@@ -161,23 +132,6 @@ export function AdminDashboard({ tickets, accessToken, onTicketUpdate, onTicketD
           </span>
           <span className="text-gray-500">({filteredTickets.length})</span>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleCheckAuth}
-            disabled={isCheckingAuth}
-            className="flex items-center gap-2 bg-slate-700 text-white px-4 py-2 rounded-lg shadow-md hover:bg-slate-800 transition-colors disabled:bg-slate-400"
-          >
-            <Shield className="w-5 h-5" />
-            <span>{isCheckingAuth ? 'Checking...' : 'Check Auth'}</span>
-          </button>
-          <button
-            onClick={() => setShowCreateUser(true)}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-700 transition-colors"
-          >
-            <UserPlus className="w-5 h-5" />
-            <span>Create New User</span>
-          </button>
-        </div>
       </div>
 
       {/* Tickets List */}
@@ -199,13 +153,6 @@ export function AdminDashboard({ tickets, accessToken, onTicketUpdate, onTicketD
         </div>
       )}
 
-      {/* Create User Modal */}
-      {showCreateUser && (
-        <CreateUser
-          onClose={() => setShowCreateUser(false)}
-          onSuccess={() => setShowCreateUser(false)}
-        />
-      )}
     </div>
   );
 }
