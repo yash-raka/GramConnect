@@ -12,7 +12,7 @@ GramConnect is a **village-first public-service portal** that bridges the commun
 - **Track the status** of their submitted complaints via a built-in chatbot.
 - **Receive admin responses** including status updates and resolution notes from Panchayat officials.
 
-The platform is designed to be **offline-resilient**: it functions entirely in the browser using `localStorage` when the cloud backend is unavailable, and seamlessly syncs to a Supabase-powered cloud backend when deployed.
+Currently, the platform runs in **Local Mode**: it functions entirely in the browser using `localStorage`, making it highly accessible and easy to run locally without a backend. It is designed to be highly scalable and can be seamlessly deployed to a cloud provider like **AWS (Amazon Web Services)** for production use.
 
 ---
 
@@ -32,33 +32,13 @@ The platform is designed to be **offline-resilient**: it functions entirely in t
 | **shadcn/ui** | (local copies) | Pre-built UI components built on Radix |
 | **sonner** | `^2.0.3` | Toast notifications |
 | **react-hook-form** | `^7.55.0` | Form state management |
-| **recharts** | `^2.15.2` | Charting library |
 | **next-themes** | `^0.4.6` | Dark mode theming support |
 | **cmdk** | `^1.1.1` | Command palette component |
-| **vaul** | `^1.1.2` | Drawer/sheet component |
-| **embla-carousel-react** | `^8.6.0` | Carousel component |
 
-### Backend / Cloud
+### Current Data Storage
+- **Browser `localStorage`**: Currently handles all data storage natively in the browser via the `gramconnect_tickets` key.
 
-| Technology | Version | Role |
-|---|---|---|
-| **Supabase** | `^2` | BaaS — Auth, KV Database, Edge Functions |
-| **@supabase/supabase-js** | `^2` | Supabase JS client |
-| **Hono** | `*` | Lightweight HTTP framework running on Deno |
-| **Deno** | (runtime) | JavaScript runtime for Supabase Edge Functions |
-| **Supabase KV Store** | (via `kv_store_43ff3f48` table) | Key-value ticket storage backed by Postgres |
-
-### Package Management & Tooling
-
-| Tool | Detail |
-|---|---|
-| **npm** | Package manager |
-| **JSR** | `@jsr:registry=https://npm.jsr.io` — JavaScript Registry for Supabase packages |
-| **@tailwindcss/vite** | `4.1.12` — Tailwind v4 Vite integration |
-| **@vitejs/plugin-react** | `^4.7.0` — React fast refresh |
-
-### Typography
-
+### Typography (via Google Fonts)
 - **Nunito** — Body font (warm, rounded, accessible)
 - **Merriweather** — Serif heading font (`.village-title` class)
 
@@ -66,52 +46,99 @@ The platform is designed to be **offline-resilient**: it functions entirely in t
 
 ## Core Features & Workflow Architecture
 
-### Two-Mode Architecture
-
-The app operates in one of two modes, decided by a health check on startup:
-
 ```
-Browser App
-     |
-     v
-checkBackendHealth() --> Supabase Edge Function /health (5s timeout)
-     |
-  unavailable                         available
-     |                                    |
-     v                                    v
-LOCAL MODE                           CLOUD MODE
-(localStorage)                  (Supabase Edge Functions)
-  - No auth required               - Hono HTTP router on Deno
-  - gramconnect_tickets key         - KV store --> Postgres table
-  - JSON array in browser           - Admin ops require JWT (role=admin)
++-------------------------------------------------------------+
+¦                        GramConnect UI                        ¦
+¦                                                             ¦
+¦  +-------------------+       +--------------------------+  ¦
+¦  ¦    USER VIEW       ¦       ¦       ADMIN VIEW          ¦  ¦
+¦  ¦                   ¦       ¦                          ¦  ¦
+¦  ¦  +-------------+  ¦       ¦  +--------------------+  ¦  ¦
+¦  ¦  ¦ TicketForm  ¦  ¦       ¦  ¦  AdminDashboard    ¦  ¦  ¦
+¦  ¦  ¦  - Name     ¦  ¦       ¦  ¦  - Stats (5 cards) ¦  ¦  ¦
+¦  ¦  ¦  - Phone    ¦  ¦       ¦  ¦  - Filter by status¦  ¦  ¦
+¦  ¦  ¦  - Title    ¦  ¦       ¦  ¦  - AdminTicketCard ¦  ¦  ¦
+¦  ¦  ¦  - Category ¦  ¦       ¦  ¦    * Edit status   ¦  ¦  ¦
+¦  ¦  ¦  - Priority ¦  ¦       ¦  ¦    * Add notes     ¦  ¦  ¦
+¦  ¦  ¦  - Location ¦  ¦       ¦  ¦    * Delete ticket ¦  ¦  ¦
+¦  ¦  ¦  - Media    ¦  ¦       ¦  ¦    * Resolve lock  ¦  ¦  ¦
+¦  ¦  +-------------+  ¦       ¦  +--------------------+  ¦  ¦
+¦  ¦  +-------------+  ¦       ¦                          ¦  ¦
+¦  ¦  ¦ TicketList  ¦  ¦       ¦                          ¦  ¦
+¦  ¦  ¦  - View all ¦  ¦       ¦                          ¦  ¦
+¦  ¦  ¦  submitted  ¦  ¦       ¦                          ¦  ¦
+¦  ¦  +-------------+  ¦       ¦                          ¦  ¦
+¦  +-------------------+       ¦                          ¦  ¦
+¦                              ¦                          ¦  ¦
+¦  +-----------------------+   ¦                          ¦  ¦
+¦  ¦      Chatbot          ¦   ¦                          ¦  ¦
+¦  ¦  (ticket status lookup¦   ¦                          ¦  ¦
+¦  ¦   by ID or phone no.) ¦   ¦                          ¦  ¦
+¦  +-----------------------+   +--------------------------+  ¦
++-------------------------------------------------------------+
 ```
 
-### User Flows
+---
 
-1. **Ticket Submission (User View)**
-   - Fill in: Name, Phone, Title, Category, Description, Location, Media (optional), Priority
-   - Submit ? stored in cloud or localStorage fallback
-   - Auto-redirected to Ticket List
+## Future Production Deployment Guide (AWS)
 
-2. **Ticket Tracking (Chatbot)**
-   - Click floating chat button
-   - Enter Ticket ID (e.g., `TICKET-1753012345678`) or Phone Number
-   - Bot returns ticket status + admin notes
+To move this project from local development to a fully scalable cloud architecture, you will need to deploy it to **Amazon Web Services (AWS)**. Here is the detailed roadmap of the services required and the steps you need to take.
 
-3. **Admin Dashboard (Admin View)**
-   - Login with email/password (cloud mode) or auto-access (local mode)
-   - View stats: Total / Pending / In Progress / Resolved / Rejected
-   - Filter tickets by status
-   - Edit ticket status + add admin notes
-   - Resolve requires verification code `1234` (prototype demo)
-   - Delete tickets
-   - Create new user accounts (cloud mode only)
+### Phase 1: Deploying the Frontend (React + Vite)
+To make the application available to villagers over the internet securely and at high speed:
+
+1. **Build the Application**: 
+   - Run `npm run build` locally. This creates an optimized `dist` folder containing the static HTML, CSS, and JS assets.
+2. **AWS S3 (Simple Storage Service)**: 
+   - Create an S3 Bucket (e.g., `gramconnect-frontend`).
+   - Enable "Static Website Hosting" on the bucket.
+   - Upload the contents of your `dist` folder to this bucket.
+3. **AWS CloudFront (CDN)**: 
+   - Create a CloudFront Distribution pointing to your S3 bucket.
+   - This ensures the website loads blazingly fast across all rural regions by caching the UI close to the users.
+   - It also automatically provides a secure HTTPS connection.
+4. **AWS Route 53 (DNS)**: 
+   - Register a custom domain (e.g., `gramconnect.in`) and use Route 53 to map the domain to your CloudFront distribution URL.
+
+### Phase 2: Building the Cloud Backend
+Currently, `api.ts` uses `localStorage` to save tickets. To allow admins to see tickets submitted by villagers on different devices, you need a centralized cloud database.
+
+1. **Amazon DynamoDB (Database)**: 
+   - Create a NoSQL DynamoDB table named `Tickets`.
+   - Set the Partition Key to `id` (String) so you can look up tickets quickly.
+2. **AWS Lambda (Serverless Compute)**: 
+   - Write small Node.js serverless functions to handle data operations.
+   - Example Functions needed:
+     - `createTicket`: Validates incoming ticket data and saves it to DynamoDB.
+     - `getTickets`: Fetches all tickets for the Admin Dashboard.
+     - `updateTicketStatus`: Allows admins to change the ticket status and add notes.
+     - `searchTickets`: Allows the Chatbot to look up a ticket by ID or Phone number.
+3. **AWS API Gateway (API Layer)**: 
+   - Create a REST API (e.g., `api.gramconnect.in`).
+   - Create endpoints (`POST /tickets`, `GET /tickets`, `PATCH /tickets/{id}`) and connect them to your Lambda functions.
+
+### Phase 3: Securing the Admin Dashboard
+Admins should be the only people allowed to edit tickets.
+
+1. **Amazon Cognito (Authentication)**: 
+   - Create a Cognito User Pool for Admin users.
+   - Update your React code to include a Login Screen for Admins using the `amazon-cognito-identity-js` library.
+2. **API Gateway Authorizers**: 
+   - Attach a Cognito Authorizer to your API Gateway.
+   - This ensures that endpoints like `PATCH /tickets/{id}` will instantly reject requests unless the user provides a valid Admin JWT token from Cognito.
+3. **AWS S3 (For Attachments)**: 
+   - Currently, ticket images/videos are saved as Base64 strings. In production, upload these media files to a separate S3 Bucket (e.g., `gramconnect-media`), and only save the resulting S3 URL string in your DynamoDB database.
+
+### Summary of Developer Action Items for AWS Migration
+1. Set up the AWS services via the AWS Console or using **AWS CDK** (Cloud Development Kit) to automate the infrastructure setup.
+2. Write the backend Node.js Lambda code.
+3. Update `src/utils/api.ts` in your frontend code to use `fetch()` to call your new AWS API Gateway URL instead of writing to `localStorage`.
 
 ---
 
 ## Database Schema / Data Models
 
-### Ticket TypeScript Interface
+### Frontend TypeScript Model — `Ticket`
 
 ```typescript
 interface Ticket {
@@ -125,96 +152,16 @@ interface Ticket {
   status: TicketStatus;    // 'pending' | 'in_progress' | 'resolved' | 'rejected'
   createdAt: string;       // ISO 8601 timestamp
   updatedAt: string;       // ISO 8601 timestamp
-  userName: string;        // Submitter full name
-  phoneNumber: string;     // Submitter phone (used for chatbot lookup)
-  adminNotes?: string;     // Optional notes from admin
-  attachment?: {
+  userName: string;        // Submitter's full name
+  phoneNumber: string;     // Submitter's phone number (used for chatbot lookup)
+  adminNotes?: string;     // Optional notes added by admin
+  attachment?: {           // Optional media evidence
     kind: 'image' | 'video';
-    name: string;
-    url: string;           // Base64 data URL (stored inline, max 8 MB)
+    name: string;          // Original filename
+    url: string;           // Base64 data URL (stored inline)
   };
 }
 ```
-
-### Supabase KV Store Table: `kv_store_43ff3f48`
-
-| Column | Type | Description |
-|---|---|---|
-| `key` | `text` (PK) | Pattern: `ticket:TICKET-<timestamp>` |
-| `value` | `jsonb` | Full serialized Ticket object |
-
-### User Roles (Supabase Auth)
-
-```json
-{
-  "user_metadata": {
-    "name": "Admin Name",
-    "role": "admin"
-  }
-}
-```
-
----
-
-## API Endpoints
-
-Base URL: `https://pmcuvlnmcvurxlzuqwpq.supabase.co/functions/v1/ticket-server`
-
-| Method | Path | Auth Required | Description |
-|---|---|---|---|
-| `GET` | `/health` | Anon Key | Health check |
-| `GET` | `/tickets` | Anon Key | Fetch all tickets |
-| `GET` | `/tickets/search?query=` | Anon Key | Search by ID or phone |
-| `POST` | `/tickets` | Anon Key | Create new ticket |
-| `PATCH` | `/tickets/:id` | Admin JWT | Update status + notes |
-| `DELETE` | `/tickets/:id` | Admin JWT | Delete a ticket |
-| `POST` | `/signup` | Anon Key | Create user account |
-| `GET` | `/debug-auth` | Admin JWT | Debug JWT token |
-
----
-
-## Environment Variables / Configuration
-
-### Frontend (hardcoded in `src/utils/supabase/info.tsx`)
-
-> These values are autogenerated — no `.env` file is needed for the frontend.
-
-| Variable | Current Value |
-|---|---|
-| `projectId` | `pmcuvlnmcvurxlzuqwpq` |
-| `publicAnonKey` | (JWT token in info.tsx) |
-
-### Backend Edge Functions (Supabase runtime secrets — auto-injected)
-
-| Variable | Description |
-|---|---|
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (admin access) |
-
-### Local Dev Settings
-
-| Setting | Value |
-|---|---|
-| Dev server port | `3000` |
-| Build output | `./build/` |
-| Module type | ES Modules |
-| JSR registry | `https://npm.jsr.io` (via `.npmrc`) |
-
----
-
-## Key Architecture Patterns
-
-1. **Dual-Mode Resilience** — Backend health-checked on startup. All CRUD ops have a localStorage fallback path.
-
-2. **Singleton Supabase Client** — `createClient()` uses module-level caching.
-
-3. **Role-Based Access Control** — Admin role checked on frontend AND enforced server-side via JWT verification.
-
-4. **Resolution Code Lock (Prototype)** — Resolving a ticket requires entering code `1234`, simulating dual approval.
-
-5. **Chatbot as Status Portal** — Citizens can look up ticket status by ID or phone number.
-
-6. **Media as Base64 Data URLs** — Attachments stored inline with ticket JSON (max 8 MB).
 
 ---
 
@@ -223,44 +170,47 @@ Base URL: `https://pmcuvlnmcvurxlzuqwpq.supabase.co/functions/v1/ticket-server`
 ```
 GramConnect/
 +-- index.html                    # HTML entry point
-+-- package.json                  # Dependencies & npm scripts
-+-- vite.config.ts                # Vite config (aliases, port 3000)
-+-- .npmrc                        # JSR registry configuration
++-- package.json                  # Dependencies & scripts
++-- vite.config.ts                # Vite config (aliases, build, server)
++-- .npmrc                        # NPM registry config
 +-- .gitignore
 ¦
 +-- src/
 ¦   +-- main.tsx                  # React entry point
-¦   +-- App.tsx                   # Root component (state, routing logic)
-¦   +-- index.css                 # Tailwind + global styles import
+¦   +-- App.tsx                   # Root component (routing, state management)
+¦   +-- index.css                 # Tailwind imports + global styles
 ¦   ¦
-¦   +-- components/
-¦   ¦   +-- Header.tsx            # App header with logo + logout button
+¦   +-- components/               # React UI components
+¦   ¦   +-- Header.tsx            # App header with logo + toggle
 ¦   ¦   +-- TicketForm.tsx        # Public ticket submission form
-¦   ¦   +-- TicketList.tsx        # Ticket list display (user view)
-¦   ¦   +-- TicketCard.tsx        # Single ticket card (user view)
-¦   ¦   +-- AdminLogin.tsx        # Admin email/password login
-¦   ¦   +-- AdminDashboard.tsx    # Admin panel with stats + filter
-¦   ¦   +-- AdminTicketCard.tsx   # Ticket card with admin controls
-¦   ¦   +-- CreateUser.tsx        # Modal to create user accounts
+¦   ¦   +-- TicketList.tsx        # Read-only list of submitted tickets
+¦   ¦   +-- TicketCard.tsx        # Single ticket display card (user view)
+¦   ¦   +-- AdminDashboard.tsx    # Admin management panel with stats
+¦   ¦   +-- AdminTicketCard.tsx   # Ticket card with edit/delete controls
 ¦   ¦   +-- Chatbot.tsx           # Floating chatbot for ticket lookup
 ¦   ¦   +-- DebugPanel.tsx        # Developer debug utilities
-¦   ¦   +-- ui/                   # 48 shadcn/ui component files
+¦   ¦   +-- figma/
+¦   ¦   ¦   +-- ImageWithFallback.tsx
+¦   ¦   +-- ui/                   # shadcn/ui component library
 ¦   ¦
 ¦   +-- types/
-¦   ¦   +-- ticket.ts             # Ticket TypeScript interfaces & types
+¦   ¦   +-- ticket.ts             # TypeScript type definitions
 ¦   ¦
 ¦   +-- utils/
-¦   ¦   +-- api.ts                # API calls + localStorage fallback logic
-¦   ¦   +-- supabase/
-¦   ¦       +-- client.ts         # Supabase client singleton
-¦   ¦       +-- info.tsx          # Project ID + anon key (autogenerated)
+¦   ¦   +-- api.ts                # Data access layer (localStorage CRUD logic)
 ¦   ¦
 ¦   +-- styles/
-¦       +-- globals.css           # Design tokens, village theme, typography
-¦
-+-- supabase/
-    +-- functions/
-        +-- ticket-server/        # Deployed Edge Function
-            +-- index.ts          # Hono app with all API routes
-            +-- kv_store.ts       # KV store CRUD helpers (Postgres-backed)
+¦   ¦   +-- globals.css           # Design tokens, village theme, typography
 ```
+
+---
+
+## Key Architecture Patterns
+
+1. **Zero-Configuration Local Mode**: The application leverages browser `localStorage` out-of-the-box, removing the need for a backend service during development or isolated local testing.
+
+2. **Resolution Code Lock (Prototype)**: Resolving a ticket requires entering verification code `1234` — a demo mechanism simulating dual approval (worker + citizen) at the Panchayat level.
+
+3. **Chatbot as Status Portal**: The chatbot allows citizens to look up their ticket by ID or phone number quickly without navigating through a complex dashboard.
+
+4. **Media Handling**: Attachments (images/videos up to 8 MB) are converted to Base64 data URLs client-side and stored inline. (Note: For the AWS migration, these should be offloaded to S3).
