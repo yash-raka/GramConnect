@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { Ticket, TicketCategory, TicketStatus } from '../types/ticket';
 import { deleteTicket, updateTicketStatus } from '../utils/api';
-import { createClient } from '../utils/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -106,25 +105,9 @@ export function AdminTicketCard({ ticket, accessToken, onUpdate, onDelete }: Adm
         adminNotes,
       });
       
-      // Get the access token (or use a fallback)
-      let currentAccessToken = accessToken || 'no-token';
+      const currentAccessToken = accessToken || 'no-token';
       
-      // Try to get a fresh session token if possible
-      try {
-        const supabase = createClient();
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.access_token) {
-          currentAccessToken = session.access_token;
-          console.log('✅ Using current session token');
-        } else {
-          console.log('⚠️ No session found, will use localStorage fallback');
-        }
-      } catch (sessionError) {
-        console.log('⚠️ Could not get session, will use localStorage fallback');
-      }
-      
-      // Attempt the update - it will automatically fall back to localStorage if auth fails
+      // Attempt the update
       const updatedTicket = await updateTicketStatus(ticket.id, newStatus, adminNotes, currentAccessToken);
       console.log('✅ Ticket update successful:', updatedTicket);
       
@@ -185,19 +168,7 @@ export function AdminTicketCard({ ticket, accessToken, onUpdate, onDelete }: Adm
     setIsDeleting(true);
 
     try {
-      let currentAccessToken = accessToken || 'no-token';
-
-      try {
-        const supabase = createClient();
-        const { data: { session } } = await supabase.auth.getSession();
-
-        if (session?.access_token) {
-          currentAccessToken = session.access_token;
-        }
-      } catch {
-        // Keep the existing token if session lookup fails.
-      }
-
+      const currentAccessToken = accessToken || 'no-token';
       await deleteTicket(ticket.id, currentAccessToken);
       onDelete(ticket.id);
       alert(`✅ Ticket deleted successfully!\n\nTicket ID: ${ticket.id}`);
