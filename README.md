@@ -1,42 +1,56 @@
-# GramConnect
+# 🏡 GramConnect
 
-> A warm, village-first digital civic complaint portal ("Seva Desk") for rural India � helping villagers report Panchayat issues and track resolutions.
+> A warm, village-first digital civic complaint portal ("Seva Desk") for rural India — helping villagers report Panchayat issues and track resolutions.
 
-[![Vite](https://img.shields.io/badge/Vite-6.3.5-646CFF?logo=vite)](https://vitejs.dev/)
-[![React](https://img.shields.io/badge/React-18.3.1-61DAFB?logo=react)](https://react.dev/)
-[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1.12-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
-[![AWS](https://img.shields.io/badge/AWS-Deployed-232F3E?logo=amazon-aws)](https://aws.amazon.com/)
+<p align="center">
+  <img src="./assets/banner.png" alt="GramConnect banner" width="100%" />
+</p>
+
+<p align="center">
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-18.3.1-61DAFB?logo=react&logoColor=white" alt="React" /></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/TailwindCSS-4.1.12-06B6D4?logo=tailwindcss&logoColor=white" alt="TailwindCSS" /></a>
+  <a href="https://aws.amazon.com/"><img src="https://img.shields.io/badge/AWS-Deployed-232F3E?logo=amazon-aws&logoColor=white" alt="AWS" /></a>
+
+</p>
+
+<p align="center">
+  <a href="#-what-is-gramconnect">About</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-using-the-app">Usage</a> •
+  <a href="#-project-structure">Structure</a> •
+  <a href="#-tech-stack">Tech Stack</a>
+</p>
 
 ---
 
-## What is GramConnect?
+## 📖 What is GramConnect?
 
 GramConnect allows Indian villagers to:
-- **Submit complaints** about roads, water supply, electricity, sanitation, street lights, drainage, and more.
-- **Attach photo/video evidence** to their reports.
-- **Track ticket status** via a floating chatbot (search by Ticket ID or phone number).
+
+- 📝 **Submit complaints** about roads, water supply, electricity, sanitation, street lights, drainage, and more.
+- 📸 **Attach photo/video evidence** to their reports.
+- 🔍 **Track ticket status** via a floating chatbot (search by Ticket ID or phone number).
 
 Panchayat admins can:
-- **View all submitted tickets** with filtering by status.
-- **Update ticket status** (Pending ? In Progress ? Resolved / Rejected).
-- **Add admin notes** on each ticket.
 
-The app works **offline-first** � it stores data in `localStorage` in the browser, making it completely independent and runnable on any desktop. It is designed to be easily deployed to **AWS (Amazon Web Services)** for scalable cloud storage.
+- 📊 **View all submitted tickets** with filtering by status.
+- 🔄 **Update ticket status** (Pending → In Progress → Resolved / Rejected).
+- 🗒️ **Add admin notes** on each ticket.
 
 ---
 
-## Prerequisites
+## ✅ Prerequisites
 
 Make sure you have the following installed:
 
 | Tool | Minimum Version | Download |
 |---|---|---|
 | **Node.js** | `>= 18.x` | [nodejs.org](https://nodejs.org/) |
-| **npm** | `>= 9.x` (comes with Node) | � |
+| **npm** | `>= 9.x` (comes with Node) | — |
 
 ---
 
-## Quick Start
+## ⚡ Quick Start
 
 ### 1. Clone the project
 
@@ -61,7 +75,7 @@ The app will start at **http://localhost:3000** and open automatically in your b
 
 ---
 
-## Running Modes
+## 🧰 Running Modes
 
 ### Development Server
 
@@ -84,24 +98,24 @@ npm run build
 
 ---
 
-## App Architecture
+## 🏗️ App Architecture
 
-The app is built to run fully locally out of the box using your browser's local storage:
+The app runs fully locally out of the box using your browser's local storage:
 
 | Mode | Data Storage | Admin Access |
 |---|---|---|
-| **Local Mode** ??? | Browser `localStorage` | Open (No auth required) |
+| **Local Mode** 💻 | Browser `localStorage` | Open (No auth required) |
 
-*Note: For production, this frontend can be hosted on AWS S3 / CloudFront, with a backend powered by AWS Lambda and DynamoDB.*
+> **Note:** In production, the frontend is hosted on **AWS S3 / CloudFront**, with a backend powered by **AWS Lambda** and **DynamoDB** for scalable cloud storage.
 
 ---
 
-## Using the App
+## 🧑‍🤝‍🧑 Using the App
 
 ### For Villagers (User View)
 
 1. Open the app at `http://localhost:3000`
-2. Click **"Raise Ticket"** tab
+2. Click the **"Raise Ticket"** tab
 3. Fill in your name, phone, issue details, category, location, and optionally attach an image/video
 4. Click **"Submit Ticket"**
 5. Use the **chatbot** (bottom-right chat bubble) to check your ticket status anytime using your Ticket ID or phone number
@@ -111,55 +125,56 @@ The app is built to run fully locally out of the box using your browser's local 
 1. Click the **"Admin View"** toggle
 2. The Admin dashboard is accessible immediately in local mode
 3. View ticket stats, filter by status, edit tickets, add notes
-4. To **resolve** a ticket: set status to "Resolved" ? enter verification code `1234`
+4. To **resolve** a ticket: set status to "Resolved" → enter verification code `1234`
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 GramConnect/
-+-- src/
-�   +-- App.tsx              # Root component � state, view routing
-�   +-- components/          # All UI components
-�   �   +-- TicketForm.tsx   # Ticket submission form
-�   �   +-- TicketList.tsx   # Ticket list (user view)
-�   �   +-- AdminDashboard.tsx # Admin panel
-�   �   +-- AdminTicketCard.tsx # Ticket editor (admin)
-�   �   +-- Chatbot.tsx      # Floating chatbot
-�   �   +-- Header.tsx       # App header
-�   �   +-- ui/              # shadcn/ui components
-�   +-- types/
-�   �   +-- ticket.ts        # TypeScript type definitions
-�   +-- utils/
-�   �   +-- api.ts           # All API + localStorage logic
-�   +-- styles/
-�       +-- globals.css      # Design system tokens + village theme
+├── src/
+│   ├── App.tsx                   # Root component — state, view routing
+│   ├── components/                # All UI components
+│   │   ├── TicketForm.tsx         # Ticket submission form
+│   │   ├── TicketList.tsx         # Ticket list (user view)
+│   │   ├── AdminDashboard.tsx     # Admin panel
+│   │   ├── AdminTicketCard.tsx    # Ticket editor (admin)
+│   │   ├── Chatbot.tsx            # Floating chatbot
+│   │   ├── Header.tsx             # App header
+│   │   └── ui/                    # shadcn/ui components
+│   ├── types/
+│   │   └── ticket.ts              # TypeScript type definitions
+│   ├── utils/
+│   │   └── api.ts                 # All API + localStorage logic
+│   └── styles/
+│       └── globals.css            # Design system tokens + village theme
 ```
 
 ---
 
-## Ticket Statuses
+## 🎫 Ticket Statuses
 
 | Status | Color | Meaning |
 |---|---|---|
-| **Pending** | ?? Yellow | Submitted, awaiting admin review |
-| **In Progress** | ?? Blue | Admin is working on the issue |
-| **Resolved** | ?? Green | Issue has been fixed |
-| **Rejected** | ?? Red | Issue was rejected (with admin notes) |
+| **Pending** | 🟡 Yellow | Submitted, awaiting admin review |
+| **In Progress** | 🔵 Blue | Admin is working on the issue |
+| **Resolved** | 🟢 Green | Issue has been fixed |
+| **Rejected** | 🔴 Red | Issue was rejected (with admin notes) |
 
 ---
 
-## Tech Stack Summary
+## 🛠️ Tech Stack
 
 - **Frontend**: React 18 + TypeScript + Vite 6 + TailwindCSS v4
 - **UI Components**: shadcn/ui (Radix UI primitives)
 - **Icons**: Lucide React
 - **Storage**: Browser `localStorage` (Local Mode)
-- **Deployment Strategy**: Designed for **AWS** (S3, CloudFront, Lambda, DynamoDB)
+- **Deployment**: **AWS** (S3, CloudFront, Lambda, DynamoDB)
 
 ---
 
-## License
+## 📜 License
 
-Private project. Created by Yash Raka. Original design inspiration from [Figma](https://www.figma.com/design/sf3QCRR3VKJxBqT6CqHCsB/Ticket-Raising-App).
+Created by **Yash Raka**.
+Original design inspiration from [Figma](https://www.figma.com/design/sf3QCRR3VKJxBqT6CqHCsB/Ticket-Raising-App).
