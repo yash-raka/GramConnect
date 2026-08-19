@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, User, Bot } from 'lucide-react';
 import { Ticket } from '../types/ticket';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
-import { isBackendAvailable } from '../utils/api';
 
 interface Message {
   id: string;
@@ -59,63 +57,21 @@ export function Chatbot() {
   }, [messages]);
 
   async function searchTickets(query: string): Promise<Ticket[]> {
-    // Check if backend is available
-    const backendOnline = await isBackendAvailable();
-    
-    if (!backendOnline) {
-      // Local mode - search from localStorage
-      try {
-        const stored = localStorage.getItem('gramconnect_tickets');
-        const allTickets: Ticket[] = stored ? JSON.parse(stored) : [];
-        
-        const matchingTickets = allTickets.filter(ticket => {
-          const matchesId = ticket.id.toLowerCase().includes(query.toLowerCase());
-          const matchesPhone = ticket.phoneNumber && ticket.phoneNumber.includes(query);
-          return matchesId || matchesPhone;
-        });
-
-        return matchingTickets;
-      } catch (error) {
-        console.error('Error searching local tickets:', error);
-        return [];
-      }
-    }
-
-    // Production mode - use Supabase API
+    // Local mode - search from localStorage
     try {
-      const API_BASE = `https://${projectId}.supabase.co/functions/v1/ticket-server`;
-      const response = await fetch(`${API_BASE}/tickets/search?query=${encodeURIComponent(query)}`, {
-        headers: {
-          'Authorization': `Bearer ${publicAnonKey}`,
-        },
-        signal: AbortSignal.timeout(10000),
+      const stored = localStorage.getItem('gramconnect_tickets');
+      const allTickets: Ticket[] = stored ? JSON.parse(stored) : [];
+      
+      const matchingTickets = allTickets.filter(ticket => {
+        const matchesId = ticket.id.toLowerCase().includes(query.toLowerCase());
+        const matchesPhone = ticket.phoneNumber && ticket.phoneNumber.includes(query);
+        return matchesId || matchesPhone;
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to search tickets');
-      }
-
-      const data = await response.json();
-      return data.tickets;
+      return matchingTickets;
     } catch (error) {
-      console.error('Error searching tickets from backend, falling back to local:', error);
-      
-      // Fallback to local search
-      try {
-        const stored = localStorage.getItem('gramconnect_tickets');
-        const allTickets: Ticket[] = stored ? JSON.parse(stored) : [];
-        
-        const matchingTickets = allTickets.filter(ticket => {
-          const matchesId = ticket.id.toLowerCase().includes(query.toLowerCase());
-          const matchesPhone = ticket.phoneNumber && ticket.phoneNumber.includes(query);
-          return matchesId || matchesPhone;
-        });
-
-        return matchingTickets;
-      } catch (localError) {
-        console.error('Error searching local tickets:', localError);
-        return [];
-      }
+      console.error('Error searching local tickets:', error);
+      return [];
     }
   }
 
