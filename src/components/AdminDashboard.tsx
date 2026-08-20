@@ -8,8 +8,10 @@ import {
   XCircle, 
   RefreshCw,
   Filter,
-  AlertCircle
+  AlertCircle,
+  Map as MapIcon
 } from 'lucide-react';
+import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 
 interface AdminDashboardProps {
   tickets: Ticket[];
@@ -121,6 +123,48 @@ export function AdminDashboard({ tickets, accessToken, onTicketUpdate, onTicketD
           </div>
           <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
         </button>
+      </div>
+
+      {/* Heat Map Section */}
+      <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <MapIcon className="w-5 h-5 text-gray-500" />
+          <h3 className="font-semibold text-gray-800">Real-Time Issue Heat Map</h3>
+        </div>
+        <div className="h-[400px] w-full rounded-lg overflow-hidden border border-gray-200">
+          <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: '100%', width: '100%' }}>
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            {filteredTickets.map(t => {
+              // Demo fallback coordinates based on ticket ID hash if lat/lng are missing
+              let lat = t.lat;
+              let lng = t.lng;
+              if (!lat || !lng) {
+                const num = parseInt(t.id.replace(/\D/g, '').slice(-4) || '1000');
+                lat = 20.5937 + (num % 10 - 5) * 2;
+                lng = 78.9629 + (num % 20 - 10) * 2;
+              }
+              const color = t.status === 'resolved' ? 'green' : t.status === 'pending' ? 'orange' : 'blue';
+              
+              return (
+                <CircleMarker 
+                  key={t.id} 
+                  center={[lat, lng]} 
+                  pathOptions={{ color, fillColor: color, fillOpacity: 0.7 }}
+                  radius={8}
+                >
+                  <Popup>
+                    <strong>{t.title}</strong><br/>
+                    Status: {t.status}<br/>
+                    Location: {t.location}
+                  </Popup>
+                </CircleMarker>
+              );
+            })}
+          </MapContainer>
+        </div>
       </div>
 
       {/* Filter Header */}

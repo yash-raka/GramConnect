@@ -31,4 +31,8 @@ export interface Ticket {
   phoneNumber: string;
   adminNotes?: string;
   attachment?: TicketAttachment;
+  lat?: number;
+  lng?: number;
+  escalation_level?: string;
+  VoiceNote?: { filePath: string };
 }

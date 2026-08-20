@@ -16,7 +16,7 @@ import {
   X
 } from 'lucide-react';
 import { Ticket, TicketCategory, TicketStatus } from '../types/ticket';
-import { deleteTicket, updateTicketStatus } from '../utils/api';
+import { deleteTicket, updateTicketStatus, generateOTP, resolveTicket } from '../utils/api';
 import {
   Dialog,
   DialogContent,
@@ -74,8 +74,6 @@ const priorityColors = {
   high: 'bg-orange-100 text-orange-700',
   urgent: 'bg-red-100 text-red-700',
 };
-
-const RESOLUTION_TEST_CODE = '1234';
 
 export function AdminTicketCard({ ticket, accessToken, onUpdate, onDelete }: AdminTicketCardProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -137,27 +135,47 @@ export function AdminTicketCard({ ticket, accessToken, onUpdate, onDelete }: Adm
     setResolutionCodeError('');
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (newStatus === 'resolved' && ticket.status !== 'resolved') {
-      setResolutionCode('');
-      setResolutionCodeError('');
-      setIsResolveDialogOpen(true);
+      setIsSaving(true);
+      try {
+        await generateOTP(ticket.id);
+        setResolutionCode('');
+        setResolutionCodeError('');
+        setIsResolveDialogOpen(true);
+      } catch (err) {
+        alert('Failed to generate OTP');
+      } finally {
+        setIsSaving(false);
+      }
       return;
     }
 
     void performSave();
   }
 
-  function handleResolveCodeSubmit() {
-    if (resolutionCode.trim() !== RESOLUTION_TEST_CODE) {
-      setResolutionCodeError('Incorrect test code. Use 1234 for the prototype.');
+  async function handleResolveCodeSubmit() {
+    if (!resolutionCode.trim()) {
+      setResolutionCodeError('Please enter the OTP.');
       return;
     }
 
-    setIsResolveDialogOpen(false);
-    setResolutionCode('');
-    setResolutionCodeError('');
-    void performSave();
+    setIsSaving(true);
+    try {
+      const updatedTicket = await resolveTicket(ticket.id, resolutionCode, adminNotes);
+      setIsEditing(false);
+      setIsResolveDialogOpen(false);
+      setResolutionCode('');
+      setResolutionCodeError('');
+      onUpdate(updatedTicket);
+      setTimeout(() => {
+        alert(`✅ Ticket resolved successfully!`);
+      }, 100);
+    } catch (err: any) {
+      setResolutionCodeError(err.response?.data?.error || 'Incorrect or expired OTP');
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   async function handleDelete() {
@@ -343,10 +361,13 @@ export function AdminTicketCard({ ticket, accessToken, onUpdate, onDelete }: Adm
         <DialogContent className="border-[#d8ccb8] bg-[#fcf8ef] sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-[#2f3a22]">Satisfaction Lock</DialogTitle>
-            <DialogDescription className="text-[#6f6455]">
-              To resolve this ticket, enter the demo verification code that represents approval from both the worker and the consumer.
-            </DialogDescription>
-          </DialogHeader>
+            <DialogDescription>
+            This ticket can only be resolved with citizen consent. 
+            An OTP has been generated for the citizen's phone number. Please enter the OTP to confirm resolution.
+            <br/><br/>
+            <i>(For development, check the server console for the simulated OTP!)</i>
+          </DialogDescription>
+        </DialogHeader>
 
           <div className="space-y-2">
             <label htmlFor={`resolve-code-${ticket.id}`} className="block text-sm font-medium text-[#4e463b]">
@@ -362,11 +383,11 @@ export function AdminTicketCard({ ticket, accessToken, onUpdate, onDelete }: Adm
                 }
               }}
               inputMode="numeric"
-              maxLength={4}
-              placeholder="1234"
+              maxLength={6}
+              placeholder="123456"
               className="border-[#d6c8b4] bg-white"
             />
-            <p className="text-xs text-[#7c6e5c]">Prototype demo code: 1234</p>
+            <p className="text-xs text-[#7c6e5c]">Enter the 6-digit OTP sent to the citizen</p>
             {resolutionCodeError ? (
               <p className="text-sm text-red-600">{resolutionCodeError}</p>
             ) : null}
