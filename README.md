@@ -15,8 +15,11 @@
 Citizens in rural and semi-urban India have no efficient way to file complaints against local government bodies and track resolution. Existing systems rely on physical visits, lack accountability, and suffer from **fake-resolution fraud** — where officials mark complaints resolved without actually fixing them.
 
 ### Previews
-![Citizen Portal](screenshot-user.png)
-![Admin Dashboard](screenshot-admin.png)
+
+<p align="center">
+  <img src="screenshot-user.png" width="45%" alt="Citizen Portal" />
+  <img src="screenshot-admin.png" width="45%" alt="Admin Dashboard" />
+</p>
 
 ## The Solution
 
