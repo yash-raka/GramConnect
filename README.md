@@ -14,6 +14,10 @@
 
 Citizens in rural and semi-urban India have no efficient way to file complaints against local government bodies and track resolution. Existing systems rely on physical visits, lack accountability, and suffer from **fake-resolution fraud** — where officials mark complaints resolved without actually fixing them.
 
+### Previews
+![Citizen Portal](screenshot-user.png)
+![Admin Dashboard](screenshot-admin.png)
+
 ## The Solution
 
 GramConnect provides:
