@@ -109,29 +109,36 @@ Chatbot lets citizens look up their ticket status by ticket ID or phone number w
 
 ```
 GramConnect/
-├── src/                        # React frontend (TypeScript)
-│   ├── components/
-│   │   ├── TicketForm.tsx      # Complaint form with GPS and voice recorder
-│   │   ├── TicketList.tsx      # Citizen's ticket list view
-│   │   ├── TicketCard.tsx      # Individual ticket card
-│   │   ├── AdminDashboard.tsx  # Admin panel with heat map
-│   │   ├── AdminTicketCard.tsx # Admin ticket management + OTP lock
-│   │   ├── Chatbot.tsx         # Status lookup chatbot
-│   │   └── Header.tsx          # App header
-│   ├── types/ticket.ts         # TypeScript type definitions
-│   ├── utils/api.ts            # Axios API layer
-│   └── App.tsx                 # Root app component
+├── client/                         # React frontend (TypeScript + Vite)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── TicketForm.tsx      # Complaint form with GPS and voice recorder
+│   │   │   ├── TicketList.tsx      # Citizen's ticket list view
+│   │   │   ├── TicketCard.tsx      # Individual ticket card
+│   │   │   ├── AdminDashboard.tsx  # Admin panel with heat map
+│   │   │   ├── AdminTicketCard.tsx # Admin ticket management + OTP lock
+│   │   │   ├── Chatbot.tsx         # Status lookup chatbot
+│   │   │   └── Header.tsx          # App header
+│   │   ├── types/ticket.ts         # TypeScript type definitions
+│   │   ├── utils/api.ts            # Axios API layer
+│   │   └── App.tsx                 # Root app component
+│   ├── index.html
+│   ├── vite.config.ts
+│   └── package.json
 │
-└── server/                     # Node.js + Express backend
-    ├── config/db.js            # Sequelize MySQL connection
-    ├── models/
-    │   ├── Ticket.js           # Ticket model (lat, lng, escalation)
-    │   ├── VoiceNote.js        # Voice note file path model
-    │   └── OTP.js              # OTP model with expiry
-    ├── routes/tickets.js       # All REST API endpoints
-    ├── uploads/                # Voice note audio files storage
-    ├── server.js               # Express app + cron job
-    └── .env                    # DB credentials
+├── server/                         # Node.js + Express backend
+│   ├── config/db.js                # Sequelize MySQL connection
+│   ├── models/
+│   │   ├── Ticket.js               # Ticket model (lat, lng, escalation)
+│   │   ├── VoiceNote.js            # Voice note file path model
+│   │   └── OTP.js                  # OTP model with expiry
+│   ├── routes/tickets.js           # All REST API endpoints
+│   ├── uploads/                    # Voice note audio files storage
+│   ├── server.js                   # Express app + cron job
+│   └── .env                        # DB credentials
+│
+├── README.md
+└── PROJECT_OVERVIEW.md
 ```
 
 ---
@@ -169,7 +176,7 @@ npm run dev
 
 ### 4. Start the Frontend
 ```bash
-# In root directory
+cd client
 npm install
 npm run dev
 # ✓ http://localhost:3000
