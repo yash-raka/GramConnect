@@ -194,13 +194,6 @@ npm run dev
 | `POST` | `/api/tickets/:id/generate-otp` | Generate Satisfaction Lock OTP |
 | `PUT` | `/api/tickets/:id/resolve` | Resolve ticket after OTP verification |
 
----
-
-## Architecture & AWS Deployment
-
-See `PROJECT_OVERVIEW.md` for a detailed breakdown of the DB schema and the AWS 3-tier deployment roadmap.
-
----
 
 ## Author
 
